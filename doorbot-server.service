@@ -1,0 +1,16 @@
+[Unit]
+Description=Doorbot Server
+After=network.target
+
+[Service]
+Type=simple
+User=airbreak
+WorkingDirectory=/home/airbreak/doorbot_server
+ExecStart=/usr/bin/python3 /home/airbreak/doorbot_server/server.py
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
