@@ -2,6 +2,29 @@
 
 Replacement server for the Raspberry Pi-based remote door lock system.
 
+> **🚀 New to this project?** Start with the [Quick Start Guide](raspberry_pi/QUICK_START.md) to get up and running in minutes!
+
+---
+
+## 📚 Documentation Index
+
+### Getting Started
+- **[Quick Start Guide](raspberry_pi/QUICK_START.md)** - Get your system working in 3 simple steps
+- **[Project Overview](PROJECT_OVERVIEW.md)** - Complete system architecture and documentation
+- **[Installation Guide](raspberry_pi/INSTALLATION.md)** - Detailed Raspberry Pi setup instructions
+
+### Raspberry Pi Setup (Choose One Method)
+- **[Automated SD Card Setup](raspberry_pi/prepare_sd_card.sh)** - Run this script to make your SD card plug-and-play (RECOMMENDED)
+- **[Manual SD Card Setup](raspberry_pi/SD_CARD_MANUAL_SETUP.md)** - Step-by-step manual configuration
+- **[Install After Boot](raspberry_pi/install_client.sh)** - Install on a running Raspberry Pi
+
+### Reference
+- **[Troubleshooting Guide](raspberry_pi/TROUBLESHOOTING.md)** - Solutions to common problems
+- **[Raspberry Pi Client README](raspberry_pi/README.md)** - Complete client documentation
+- **[GitHub Setup](GITHUB_SETUP.md)** - How to create the GitHub repository
+
+---
+
 ## Server Information
 
 - **Host**: newyakko.cs.wmich.edu
@@ -125,16 +148,35 @@ sudo systemctl status doorbot-server.service
 sudo journalctl -u doorbot-server.service -f
 ```
 
-## Raspberry Pi Client Configuration
+## Raspberry Pi Client Setup
 
-Update the Raspberry Pi client to point to this server:
+The Raspberry Pi client is **pre-configured and ready to use**!
 
-**File**: `/home/Janus/Downloads/doorbot_client.py`
-**Line 49**: Change to:
+### Option 1: Automated Setup (Recommended)
 
-```python
-server_url = "http://newyakko.cs.wmich.edu:8878"
+Run the preparation script to make your SD card plug-and-play:
+
+```bash
+cd raspberry_pi
+./prepare_sd_card.sh
 ```
+
+This will:
+- Automatically detect your SD card
+- Install the client with correct server URL
+- Configure auto-start on boot
+- Set up WiFi (optional)
+
+Then just insert the SD card and boot - it works immediately!
+
+### Option 2: Manual Configuration
+
+See the [Raspberry Pi Setup Guide](raspberry_pi/README.md) for other installation methods.
+
+The client is pre-configured with:
+- Server URL: `http://newyakko.cs.wmich.edu:8878`
+- Poll interval: 1 second
+- Auto-start on boot
 
 ## Firewall Configuration
 
@@ -213,13 +255,57 @@ See the original plan document for security enhancement examples.
 ## File Structure
 
 ```
-/home/airbreak/doorbot_server/
-├── server.py           # Main Flask server
-├── requirements.txt    # Python dependencies
-├── README.md          # This file
-└── doorbot-server.service  # systemd service file (optional)
+doorbot_server/
+├── server.py                      # Main Flask server
+├── requirements.txt               # Python dependencies
+├── setup.sh                       # Automated server setup
+├── test_server.sh                 # Server testing script
+├── doorbot-server.service         # systemd service file
+├── README.md                      # This file
+├── PROJECT_OVERVIEW.md            # Complete system documentation
+├── RASPBERRY_PI_SETUP.md          # Legacy Pi setup guide
+├── GITHUB_SETUP.md               # GitHub repository creation
+└── raspberry_pi/                  # Raspberry Pi client files
+    ├── doorbot_client.py          # Pre-configured client script
+    ├── prepare_sd_card.sh         # Automated SD card setup
+    ├── install_client.sh          # Installation script
+    ├── README.md                  # Client documentation
+    ├── QUICK_START.md             # Quick start guide
+    ├── INSTALLATION.md            # Detailed installation
+    ├── TROUBLESHOOTING.md         # Problem solutions
+    └── SD_CARD_MANUAL_SETUP.md   # Manual SD card guide
 ```
+
+## Complete System Test
+
+### 1. Start the Server (on newyakko.cs.wmich.edu)
+
+```bash
+cd ~/doorbot_server
+python3 server.py
+```
+
+### 2. Prepare Raspberry Pi SD Card
+
+```bash
+cd raspberry_pi
+./prepare_sd_card.sh
+```
+
+### 3. Boot Raspberry Pi
+
+Insert SD card and power on. Client auto-starts.
+
+### 4. Test the System
+
+1. Open http://newyakko.cs.wmich.edu:8878
+2. Click "Unlock Door"
+3. Within 1 second, the door should unlock
+
+**Success!** Your Doorbot system is fully operational.
 
 ## Support
 
-For issues or questions, refer to the comprehensive project plan document.
+- **Troubleshooting:** See [raspberry_pi/TROUBLESHOOTING.md](raspberry_pi/TROUBLESHOOTING.md)
+- **System Architecture:** See [PROJECT_OVERVIEW.md](PROJECT_OVERVIEW.md)
+- **GitHub Issues:** Report problems on GitHub after pushing this repository
