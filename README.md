@@ -1,36 +1,153 @@
-# Doorbot Server
+# 🚪 Doorbot2 - Remote Door Lock System
 
-Replacement server for the Raspberry Pi-based remote door lock system.
+**Replacement server for the Raspberry Pi-based remote door lock system**
 
-> **🚀 New to this project?** Start with the [Quick Start Guide](raspberry_pi/QUICK_START.md) to get up and running in minutes!
+Migrated from `dot.cs.wmich.edu:8878` to `newyakko.cs.wmich.edu:8878`
 
----
-
-## 📚 Documentation Index
-
-### Getting Started
-- **[Quick Start Guide](raspberry_pi/QUICK_START.md)** - Get your system working in 3 simple steps
-- **[Project Overview](PROJECT_OVERVIEW.md)** - Complete system architecture and documentation
-- **[Installation Guide](raspberry_pi/INSTALLATION.md)** - Detailed Raspberry Pi setup instructions
-
-### Raspberry Pi Setup (Choose One Method)
-- **[Automated SD Card Setup](raspberry_pi/prepare_sd_card.sh)** - Run this script to make your SD card plug-and-play (RECOMMENDED)
-- **[Manual SD Card Setup](raspberry_pi/SD_CARD_MANUAL_SETUP.md)** - Step-by-step manual configuration
-- **[Install After Boot](raspberry_pi/install_client.sh)** - Install on a running Raspberry Pi
-
-### Reference
-- **[Troubleshooting Guide](raspberry_pi/TROUBLESHOOTING.md)** - Solutions to common problems
-- **[Raspberry Pi Client README](raspberry_pi/README.md)** - Complete client documentation
-- **[GitHub Setup](GITHUB_SETUP.md)** - How to create the GitHub repository
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
+[![Flask](https://img.shields.io/badge/flask-2.3+-green.svg)](https://flask.palletsprojects.com/)
 
 ---
 
-## Server Information
+## 📖 What Is This?
 
-- **Host**: newyakko.cs.wmich.edu
-- **Port**: 8878
-- **Web Interface**: http://newyakko.cs.wmich.edu:8878
-- **API Endpoint**: http://newyakko.cs.wmich.edu:8878/status
+This is a complete remote door lock system that allows you to unlock a physical door via:
+- 💬 **Element chatbot command** (`$letmein`) - Primary method
+- 🌐 **Web interface** - Manual backup option
+- 🔌 **API calls** - Integration-ready
+
+**System Components:**
+- 🖥️ **Flask Server** - Runs on newyakko.cs.wmich.edu:8878
+- 🍓 **Raspberry Pi Client** - Controls door lock hardware via GPIO
+- 🤖 **Element Chatbot** - Sends unlock commands from chat
+
+---
+
+## 🚀 Quick Start
+
+### For First-Time Setup (5 Minutes)
+
+1. **Prepare the SD Card** (plug-and-play method)
+   ```bash
+   cd raspberry_pi
+   ./prepare_sd_card.sh
+   ```
+   Insert SD card, run script, done!
+
+2. **Deploy Server on newyakko.cs.wmich.edu**
+   ```bash
+   git clone https://github.com/airbreak404/doorbot2.git
+   cd doorbot2
+   pip3 install -r requirements.txt
+   python3 server.py
+   ```
+
+3. **Update Element Chatbot**
+   - See [chatbot_command/README.md](chatbot_command/README.md)
+   - Change URL from `dot.cs.wmich.edu:8878` to `newyakko.cs.wmich.edu:8878`
+
+4. **Test It!**
+   - Insert SD card in Pi and boot
+   - In Element chat: `$letmein`
+   - Door unlocks! 🎉
+
+**👉 Detailed Instructions:** [MIGRATION_FROM_DOT.md](MIGRATION_FROM_DOT.md)
+
+---
+
+## 📚 Complete Documentation
+
+### 🎯 Start Here
+| Document | Purpose |
+|----------|---------|
+| **[MIGRATION_FROM_DOT.md](MIGRATION_FROM_DOT.md)** | **Complete migration guide** from dot to newyakko |
+| **[raspberry_pi/QUICK_START.md](raspberry_pi/QUICK_START.md)** | **3-step setup** for Raspberry Pi |
+| **[PROJECT_OVERVIEW.md](PROJECT_OVERVIEW.md)** | System architecture and how everything works |
+
+### 🍓 Raspberry Pi Setup
+| Document | Purpose |
+|----------|---------|
+| **[raspberry_pi/README.md](raspberry_pi/README.md)** | Client overview and setup options |
+| **[raspberry_pi/prepare_sd_card.sh](raspberry_pi/prepare_sd_card.sh)** | **Automated SD card setup** (RECOMMENDED) |
+| **[raspberry_pi/INSTALLATION.md](raspberry_pi/INSTALLATION.md)** | Detailed installation instructions |
+| **[raspberry_pi/SD_CARD_MANUAL_SETUP.md](raspberry_pi/SD_CARD_MANUAL_SETUP.md)** | Manual SD card configuration |
+| **[raspberry_pi/TROUBLESHOOTING.md](raspberry_pi/TROUBLESHOOTING.md)** | Problem solutions |
+
+### 🤖 Chatbot Integration
+| Document | Purpose |
+|----------|---------|
+| **[chatbot_command/README.md](chatbot_command/README.md)** | Update Element chatbot command |
+| **[chatbot_command/letmein.py](chatbot_command/letmein.py)** | Updated command file |
+
+### 🔧 Server Setup
+| File | Purpose |
+|------|---------|
+| **[server.py](server.py)** | Main Flask server application |
+| **[doorbot-server.service](doorbot-server.service)** | systemd service for auto-start |
+| **[setup.sh](setup.sh)** | Automated server setup |
+| **[test_server.sh](test_server.sh)** | Server testing script |
+
+---
+
+## 🌐 Server Information
+
+- **Host:** newyakko.cs.wmich.edu
+- **Port:** 8878
+- **Web Control:** http://newyakko.cs.wmich.edu:8878/control
+- **Health Check:** http://newyakko.cs.wmich.edu:8878/health
+- **API Endpoint:** http://newyakko.cs.wmich.edu:8878/
+
+### API Specification
+
+| Method | Endpoint | Purpose | Used By |
+|--------|----------|---------|---------|
+| `GET /` | Returns `{"letmein": bool}` | Pi client polls for status | Raspberry Pi |
+| `POST /` | Accepts `{"status": {"letmein": bool}}` | Control door lock | Element chatbot |
+| `GET /control` | Web interface | Manual control | Web browser |
+| `GET /health` | Server status | Health monitoring | Monitoring tools |
+
+---
+
+## 🎯 How It Works
+
+```
+User: "$letmein" in Element chat
+        ↓
+Chatbot: POST / {"status": {"letmein": true}}
+        ↓
+Server: Sets letmein = true
+        ↓
+Raspberry Pi: Polls GET / every 1 second
+        ↓
+Pi receives: {"letmein": true}
+        ↓
+Pi: Unlocks door via GPIO
+        ↓
+Chatbot: After 3s, POST / {"status": {"letmein": false}}
+        ↓
+Door: Returns to locked state
+```
+
+---
+
+## 🛠️ Hardware Requirements
+
+### Raspberry Pi Setup
+- Raspberry Pi (any model with GPIO)
+- Stepper motor for door handle rotation
+- Relay module for power control
+- Position sensor (optional but recommended)
+
+### GPIO Pin Assignment
+| Pin | Function |
+|-----|----------|
+| GPIO 4 | Power relay control |
+| GPIO 15 | Motor direction control |
+| GPIO 18 | Stepper motor PWM |
+| GPIO 7 | Handle position sensor |
+
+---
 
 ## Installation
 
@@ -276,36 +393,215 @@ doorbot_server/
     └── SD_CARD_MANUAL_SETUP.md   # Manual SD card guide
 ```
 
-## Complete System Test
+## ✅ Testing Your Installation
 
-### 1. Start the Server (on newyakko.cs.wmich.edu)
-
-```bash
-cd ~/doorbot_server
-python3 server.py
-```
-
-### 2. Prepare Raspberry Pi SD Card
+### 1. Test Server API
 
 ```bash
-cd raspberry_pi
-./prepare_sd_card.sh
+# Test Pi polling endpoint
+curl http://newyakko.cs.wmich.edu:8878/
+
+# Expected: {"letmein": false, "last_command_time": null, ...}
+
+# Test chatbot endpoint
+curl -X POST http://newyakko.cs.wmich.edu:8878/ \
+  -H "Content-Type: application/json" \
+  -d '{"status": {"letmein": true}}'
+
+# Expected: {"success": true, "letmein": true}
 ```
 
-### 3. Boot Raspberry Pi
+### 2. Test Raspberry Pi Client
 
-Insert SD card and power on. Client auto-starts.
+```bash
+# SSH to the Pi
+ssh Janus@RASPBERRY_PI_IP
 
-### 4. Test the System
+# Check if service is running
+sudo systemctl status doorbot-client
 
-1. Open http://newyakko.cs.wmich.edu:8878
-2. Click "Unlock Door"
-3. Within 1 second, the door should unlock
+# Watch logs in real-time
+sudo journalctl -u doorbot-client -f
+```
 
-**Success!** Your Doorbot system is fully operational.
+### 3. Test Element Chatbot
 
-## Support
+In your Element chat:
+```
+$letmein
+```
 
-- **Troubleshooting:** See [raspberry_pi/TROUBLESHOOTING.md](raspberry_pi/TROUBLESHOOTING.md)
-- **System Architecture:** See [PROJECT_OVERVIEW.md](PROJECT_OVERVIEW.md)
-- **GitHub Issues:** Report problems on GitHub after pushing this repository
+Expected response: "Door unlocked and now locked again."
+
+### 4. Complete End-to-End Test
+
+1. Start server on newyakko
+2. Boot Raspberry Pi with prepared SD card
+3. In Element chat: `$letmein`
+4. Watch Pi logs for unlock sequence
+5. Verify door physically unlocks
+
+**Success!** Your Doorbot system is fully operational. 🎉
+
+---
+
+## 🚢 Deployment
+
+### Production Deployment (systemd service)
+
+```bash
+# Copy service file
+sudo cp doorbot-server.service /etc/systemd/system/
+
+# Enable and start
+sudo systemctl daemon-reload
+sudo systemctl enable doorbot-server
+sudo systemctl start doorbot-server
+
+# Check status
+sudo systemctl status doorbot-server
+
+# View logs
+sudo journalctl -u doorbot-server -f
+```
+
+### Firewall Configuration
+
+```bash
+# Allow port 8878
+sudo ufw allow 8878/tcp
+```
+
+---
+
+## 🐛 Troubleshooting
+
+### Quick Diagnostics
+
+```bash
+# Server not responding
+sudo systemctl status doorbot-server
+sudo journalctl -u doorbot-server -n 50
+
+# Pi can't reach server
+ping newyakko.cs.wmich.edu
+curl http://newyakko.cs.wmich.edu:8878/health
+
+# Pi client not running
+sudo systemctl status doorbot-client
+sudo journalctl -u doorbot-client -n 50
+
+# Test hardware
+python3 -c "import RPi.GPIO as GPIO; GPIO.setmode(GPIO.BCM); print('OK')"
+```
+
+**For detailed troubleshooting:** [raspberry_pi/TROUBLESHOOTING.md](raspberry_pi/TROUBLESHOOTING.md)
+
+---
+
+## 📁 Repository Structure
+
+```
+doorbot2/
+├── server.py                      # Flask server application
+├── requirements.txt               # Python dependencies
+├── doorbot-server.service         # systemd service file
+├── setup.sh                       # Automated server setup
+├── test_server.sh                 # Server testing script
+│
+├── README.md                      # This file
+├── MIGRATION_FROM_DOT.md          # Migration guide from dot to newyakko
+├── PROJECT_OVERVIEW.md            # System architecture documentation
+├── RASPBERRY_PI_SETUP.md          # Legacy Pi setup guide
+├── GITHUB_SETUP.md               # GitHub repository setup
+│
+├── raspberry_pi/                  # Raspberry Pi client files
+│   ├── doorbot_client.py          # Pre-configured client script
+│   ├── prepare_sd_card.sh         # Automated SD card preparation
+│   ├── install_client.sh          # Installation script
+│   ├── README.md                  # Client documentation
+│   ├── QUICK_START.md             # Quick start guide
+│   ├── INSTALLATION.md            # Detailed installation
+│   ├── TROUBLESHOOTING.md         # Problem solutions
+│   └── SD_CARD_MANUAL_SETUP.md   # Manual SD card guide
+│
+└── chatbot_command/               # Element chatbot integration
+    ├── letmein.py                 # Updated chatbot command
+    └── README.md                  # Chatbot update instructions
+```
+
+---
+
+## 🔒 Security Considerations
+
+**⚠️ Current Implementation: NO AUTHENTICATION**
+
+This server has no authentication. Anyone who can access the URL can unlock the door.
+
+**This is acceptable for:**
+- Internal networks only
+- Trusted environments
+- Development/testing
+
+**For production internet exposure, implement:**
+- API key authentication
+- HTTPS/TLS encryption
+- IP whitelisting
+- Rate limiting
+- User authentication system
+- Audit logging
+
+See [PROJECT_OVERVIEW.md](PROJECT_OVERVIEW.md) for security enhancement examples.
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Areas for improvement:
+
+- [ ] Authentication system
+- [ ] HTTPS support
+- [ ] Mobile app integration
+- [ ] Database logging
+- [ ] Multiple door support
+- [ ] Access control lists
+- [ ] Webhook notifications
+- [ ] Home Assistant integration
+
+---
+
+## 📄 License
+
+This is a restoration/replacement project for an existing system. Use at your own discretion.
+
+---
+
+## 👥 Credits
+
+- **Original System:** Western Michigan University CS Department
+- **Server Migration & Documentation:** Doorbot2 Project
+- **Original Chatbot Command:** Lochlan McElroy
+
+---
+
+## 📞 Support
+
+- **Documentation:** See links above for comprehensive guides
+- **Issues:** Report problems via GitHub Issues
+- **Quick Help:** See [raspberry_pi/QUICK_START.md](raspberry_pi/QUICK_START.md)
+
+---
+
+## 🎓 Project History
+
+**Previous Server:** `dot.cs.wmich.edu:8878` (Western Michigan University - decommissioned)
+
+**Current Server:** `newyakko.cs.wmich.edu:8878` (Replacement implementation)
+
+This project maintains API compatibility with the original system while adding improved documentation, easier setup, and enhanced features.
+
+---
+
+**Repository:** https://github.com/airbreak404/doorbot2
+
+**Ready to get started?** → [MIGRATION_FROM_DOT.md](MIGRATION_FROM_DOT.md)
