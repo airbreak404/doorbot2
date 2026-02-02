@@ -165,7 +165,7 @@ def poll_server():
         dict: Server response with 'letmein' status, or None if error
     """
     try:
-        response = requests.get(f"{SERVER_URL}/status", timeout=5)
+        response = requests.get(SERVER_URL, timeout=5)
         response.raise_for_status()
         data = response.json()
         return data
