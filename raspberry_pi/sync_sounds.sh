@@ -7,6 +7,6 @@ SOUNDS_DIR="/home/doorbot/doorbot/sounds"
 REMOTE_PATH="protondrive:sounds"
 
 rclone sync "$REMOTE_PATH" "$SOUNDS_DIR" \
-    --filter-rule "+ *.wav" \
-    --filter-rule "- *" \
+    --include "*.wav" \
+    --exclude "*" \
     --log-level WARNING
