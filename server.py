@@ -20,7 +20,9 @@ app = Flask(__name__)
 door_state = {
     "letmein": False,
     "last_command_time": None,
-    "last_unlock_user": None
+    "last_unlock_user": None,
+    "sound": "",
+    "sounds": []
 }
 
 # Web interface HTML
@@ -248,6 +250,7 @@ def root_endpoint():
             if data and 'status' in data and 'letmein' in data['status']:
                 # Update the letmein status
                 door_state['letmein'] = data['status']['letmein']
+                door_state['sound'] = data['status'].get('sound', '')
                 door_state['last_command_time'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
                 # Log the command
@@ -263,6 +266,26 @@ def root_endpoint():
         except Exception as e:
             print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Error processing POST: {e}")
             return jsonify({"error": str(e)}), 500
+
+@app.route('/sounds', methods=['GET', 'POST'])
+def sounds_endpoint():
+    """
+    GET  /sounds → Returns the current sound list
+    POST /sounds → Pi client registers its available sounds
+    """
+    if request.method == 'GET':
+        return jsonify({"sounds": door_state['sounds']})
+
+    # POST — Pi client pushing its sound list
+    try:
+        data = request.get_json()
+        if data and 'sounds' in data:
+            door_state['sounds'] = data['sounds']
+            print(f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] Sound list updated: {len(data['sounds'])} sounds")
+            return jsonify({"success": True, "count": len(data['sounds'])}), 200
+        return jsonify({"error": "Missing 'sounds' field"}), 400
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @app.route('/control')
 def web_interface():
