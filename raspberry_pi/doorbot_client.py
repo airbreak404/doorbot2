@@ -71,7 +71,11 @@ def push_sound_list():
 
 def play_sound(sound=None):
     """Play a sound file. If sound is specified, play that; otherwise pick random.
-    Returns the Popen process so caller can kill it after MAX_SOUND_DURATION."""
+    Returns the Popen process so caller can kill it after MAX_SOUND_DURATION.
+    Special value "none" means no sound at all."""
+    if sound == "none":
+        print(f"[{get_timestamp()}] No sound (sneaky)")
+        return None
     try:
         if sound:
             path = os.path.join(SOUNDS_DIR, sound)
