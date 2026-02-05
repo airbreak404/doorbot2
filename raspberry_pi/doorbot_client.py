@@ -109,14 +109,18 @@ def unlock_door(pwm, sound=None):
         print(f"[{get_timestamp()}] Unlocked!")
         sound_proc = play_sound(sound)
 
-        # Hold door open
+        # Hold door open; kill sound independently after MAX_SOUND_DURATION
         print(f"[{get_timestamp()}] Holding for {UNLOCK_HOLD_TIME}s...")
-        time.sleep(UNLOCK_HOLD_TIME)
-
-        # Kill sound if still playing after max duration
-        if sound_proc and sound_proc.poll() is None:
-            sound_proc.kill()
-            print(f"[{get_timestamp()}] Sound stopped (max {MAX_SOUND_DURATION}s)")
+        if sound_proc:
+            time.sleep(min(MAX_SOUND_DURATION, UNLOCK_HOLD_TIME))
+            if sound_proc.poll() is None:
+                sound_proc.kill()
+                print(f"[{get_timestamp()}] Sound stopped (max {MAX_SOUND_DURATION}s)")
+            remaining = UNLOCK_HOLD_TIME - MAX_SOUND_DURATION
+            if remaining > 0:
+                time.sleep(remaining)
+        else:
+            time.sleep(UNLOCK_HOLD_TIME)
 
         # Reverse for static time
         print(f"[{get_timestamp()}] Reversing for {REVERSE_TIME}s...")
