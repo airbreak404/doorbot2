@@ -6,6 +6,6 @@ Wants=network-online.target
 [Service]
 Type=oneshot
 User=doorbot
-ExecStart=/home/doorbot/doorbot/sync_sounds.sh
+ExecStart=/home/doorbot/doorbot2/raspberry_pi/sync_sounds.sh
 StandardOutput=journal
 StandardError=journal

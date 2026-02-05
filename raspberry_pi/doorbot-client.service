@@ -1,0 +1,20 @@
+[Unit]
+Description=Doorbot Client - Door Lock Controller
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=doorbot
+WorkingDirectory=/home/doorbot/doorbot2/raspberry_pi
+EnvironmentFile=-/home/doorbot/doorbot2/raspberry_pi/.env
+ExecStart=/usr/bin/python3 /home/doorbot/doorbot2/raspberry_pi/doorbot_client.py
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

@@ -35,3 +35,6 @@ Thumbs.db
 # Secrets / credentials
 .env
 .config/rclone/
+
+# Sound files (synced from Proton Drive at runtime, not tracked in git)
+sounds/
