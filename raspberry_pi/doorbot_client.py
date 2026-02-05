@@ -53,6 +53,22 @@ def poll_server():
     except:
         return None
 
+def get_sound_list():
+    try:
+        return sorted([f for f in os.listdir(SOUNDS_DIR) if f.endswith('.wav')])
+    except:
+        return []
+
+def push_sound_list():
+    try:
+        sounds = get_sound_list()
+        requests.post(SERVER_URL + '/sounds',
+                      json={'sounds': sounds},
+                      headers={"Authorization": "Bearer " + API_KEY},
+                      timeout=5)
+    except:
+        pass
+
 def play_sound(sound=None):
     """Play a sound file. If sound is specified, play that; otherwise pick random.
     Returns the Popen process so caller can kill it after MAX_SOUND_DURATION."""
@@ -146,9 +162,20 @@ def main():
     print(f"\nDOORBOT CLIENT - {SERVER_URL}")
     pwm = setup_gpio()
     consecutive_errors = 0
+    last_sound_push = 0
+
+    # Push sound list immediately on start
+    push_sound_list()
+    last_sound_push = time.time()
 
     try:
         while True:
+            # Push sound list every 60 seconds
+            now = time.time()
+            if now - last_sound_push >= 60:
+                push_sound_list()
+                last_sound_push = now
+
             status = poll_server()
             if status is None:
                 consecutive_errors += 1

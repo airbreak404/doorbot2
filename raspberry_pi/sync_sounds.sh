@@ -15,6 +15,9 @@ git fetch origin --quiet
 # Update only the sounds directory from remote master
 git checkout origin/master -- raspberry_pi/sounds/
 
+# Clean up any messy filenames (handles uploads via GitHub web UI)
+python3 "$REPO_DIR/raspberry_pi/clean_filenames.py" "$SOUNDS_DIR"
+
 # Evict oldest .wav files if cache exceeds limit
 CURRENT_KB=$(du -sk "$SOUNDS_DIR" | cut -f1)
 MAX_KB=$((MAX_CACHE_MB * 1024))
