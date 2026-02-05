@@ -15,6 +15,9 @@
 | `INSTALLATION.md` | **Detailed installation** - Step-by-step manual installation |
 | `TROUBLESHOOTING.md` | **Troubleshooting guide** - Solutions to common problems |
 | `SD_CARD_MANUAL_SETUP.md` | **Manual SD card setup** - If you prefer to edit files manually |
+| `sync_sounds.sh` | **Proton Drive sync** - Pulls `.wav` files from shared Proton Drive folder |
+| `sounds-sync.service` | **Systemd service** - Runs the sync script |
+| `sounds-sync.timer` | **Systemd timer** - Triggers sync every 5 minutes |
 
 ---
 
@@ -272,6 +275,40 @@ Your system is working if:
 - python3-requests
 
 All software dependencies are automatically installed by the setup scripts.
+
+---
+
+## 🔊 Proton Drive Sound Sync
+
+Club members can add sounds by uploading `.wav` files to the shared Proton Drive `sounds` folder. They sync to the Pi every 5 minutes automatically, and a random one plays each time the door unlocks.
+
+**One-time setup on the Pi** (requires a browser for auth):
+
+```bash
+# 1. Install rclone
+sudo apt install rclone
+
+# 2. Configure Proton Drive remote (opens browser for auth)
+rclone config
+#   n) New remote
+#   name> protondrive
+#   storage> protondrive   (select from list)
+#   Follow prompts to auth in browser
+
+# 3. Install and enable the sync timer
+sudo cp sounds-sync.service sounds-sync.timer /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable sounds-sync.timer
+sudo systemctl start sounds-sync.timer
+```
+
+**Test a manual sync:**
+```bash
+sudo -u doorbot bash sync_sounds.sh
+ls ~/doorbot/sounds/
+```
+
+The Proton Drive folder must be named `sounds`. Only `.wav` files are synced.
 
 ---
 

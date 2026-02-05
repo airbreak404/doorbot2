@@ -1,0 +1,11 @@
+[Unit]
+Description=Sync sounds from Proton Drive
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=doorbot
+ExecStart=/home/doorbot/doorbot/sync_sounds.sh
+StandardOutput=journal
+StandardError=journal
