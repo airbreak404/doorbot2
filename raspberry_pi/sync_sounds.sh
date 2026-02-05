@@ -1,20 +1,19 @@
 #!/bin/bash
-# Syncs .wav files from Proton Drive, with a local cache size limit.
-# If the sounds folder exceeds MAX_CACHE_MB, oldest files are removed first.
-# Requires rclone configured with a remote named "protondrive".
+# Syncs sounds from GitHub by fetching and checking out only the sounds/
+# directory.  Code changes are NOT applied — those require a manual git pull.
+# To add a new sound: upload a .wav to raspberry_pi/sounds/ on GitHub.
 
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-SOUNDS_DIR="$SCRIPT_DIR/sounds"
-REMOTE_PATH="protondrive:sounds"
+REPO_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+SOUNDS_DIR="$REPO_DIR/raspberry_pi/sounds"
 MAX_CACHE_MB=20000  # 20 GB
 
-mkdir -p "$SOUNDS_DIR"
+cd "$REPO_DIR" || exit 1
 
-# Pull new sounds from Proton Drive (copy never deletes local files)
-rclone copy "$REMOTE_PATH" "$SOUNDS_DIR" \
-    --filter "+ *.wav" \
-    --filter "- *" \
-    --log-level WARNING
+# Fetch latest from remote (no merge)
+git fetch origin --quiet
+
+# Update only the sounds directory from remote master
+git checkout origin/master -- raspberry_pi/sounds/
 
 # Evict oldest .wav files if cache exceeds limit
 CURRENT_KB=$(du -sk "$SOUNDS_DIR" | cut -f1)

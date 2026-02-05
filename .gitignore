@@ -36,5 +36,5 @@ Thumbs.db
 .env
 .config/rclone/
 
-# Sound files (synced from Proton Drive at runtime, not tracked in git)
-sounds/
+# Sound files are tracked in git (add via GitHub web UI upload)
+# Club members: upload .wav files to raspberry_pi/sounds/ on GitHub
